@@ -98,3 +98,40 @@ openssl x509 -req \
 -sha256 \
 -extfile server.mssl.example.ext
 ```
+
+**Congratulations! You can now use the .crt & .key files in nginx to add HTTPS to your website**
+<br><br>
+
+# 3. Generating Client certificates for Mutual SSL
+
+### 3.1 Generate Client Key
+```sh
+# I will use "example123" as the pass phrase
+openssl genrsa -des3 -out user.key 4096
+```
+
+### 3.2 Generate Client Certificate Sign Request
+```sh
+# I will use "MSSL CLIENT" as common name, and "example123" as Challenge
+openssl req -new -key user.key -out user.csr
+```
+### 3.3 Generate Client Certificate using Key, CSR & CA
+```sh
+# sign the csr to a certificate valid for 365 days
+# pass phrase: "example123"
+openssl x509 -req \
+-in user.csr \
+-CA ca.crt \
+-CAkey ca.key \
+-out user.crt \
+-days 365 \
+-set_serial 01
+```
+
+### Create PKCS #12 (PFX)
+combine the key and crt into one file so you can install it on your system
+
+```sh
+# export pw= "example123"
+openssl pkcs12 -export -out user.pfx -inkey user.key -in user.crt -certfile ca.crt
+```

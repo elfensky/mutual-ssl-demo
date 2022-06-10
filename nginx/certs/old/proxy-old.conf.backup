@@ -1,0 +1,112 @@
+# HTTO OVER PORTS 80 & 5000
+server {
+    listen 80;
+    listen 5000;
+    server_name localhost mssl.lavrenov.io mssl.crystalspring.dev;
+
+    access_log  /logs/http.access.log  main;
+
+    location / {
+		  proxy_pass http://server:4000;
+	  }
+}
+
+# HTTPS OVER 443 USING 'SERVER.MSSL.EXAMPLE'
+server {
+    listen 443 ssl;
+    server_name server.mssl.example;
+    access_log  /logs/server.access.log  main;
+
+    # SSL
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    # Certificates used for HTTPS
+    ssl_certificate /etc/nginx/certs/local/server.mssl.example.crt;
+    ssl_certificate_key /etc/nginx/certs/local/server.mssl.example.key;
+
+    # Certificates used for Client Authentication
+    # ssl_trusted_certificate /etc/nginx/certs/local/ca.crt; 
+    # ssl_client_certificate /etc/nginx/certs/local/ca.crt; 
+    # ssl_verify_client on;
+    # ssl_verify_depth 2;
+
+    location / {
+        # if ($ssl_client_verify != SUCCESS) { return 403; }
+        
+        # proxy_set_header     SSL_Client_Issuer $ssl_client_i_dn;
+        # proxy_set_header     SSL_Client $ssl_client_s_dn;
+        # proxy_set_header     SSL_Client_Verify $ssl_client_verify;
+
+        proxy_set_header X-Forwarded-For "server.mssl.example";
+        proxy_set_header X-Forwarded-Proto "https";
+
+        proxy_pass http://server:4000;  
+    }
+}
+
+# HTTPS OVER 443 USING 'LOCALHOST' & 'MSSL.LAVRENOV.IO'
+server {
+    listen 443 ssl;
+    server_name localhost mssl.lavrenov.io;
+    access_log  /logs/https.access.log  main;
+
+    # SSL
+    ssl_protocols TLSv1.2 TLSv1.3;
+    # Generated SSL 
+    # openssl req -x509 -nodes -days 16 -newkey rsa:4096 -keyout server.key -out server.crt
+    # COUNTRY: BE   DOMAIN: mssl.lavrenov.io   EMAIL: mssl@lavrenov.io
+    # ssl_certificate /etc/nginx/certs/local/server.crt;
+    # ssl_certificate_key /etc/nginx/certs/local/server.key;
+    ssl_certificate /etc/nginx/certs/letsencrypt/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/letsencrypt/privkey.pem;
+
+    # Client SSL
+    # openssl req -x509 -nodes -days 16 -newkey rsa:4096 -keyout client.key -out client.crt 
+    # COUNTRY: BE   EMAIL: user@lavrenov.io
+    # ssl_trusted_certificate /etc/nginx/certs/local/ca.crt; 
+    ssl_client_certificate /etc/nginx/certs/local/ca.crt; 
+    ssl_verify_client on;
+    ssl_verify_depth 2;
+
+    location / {
+        # if ($ssl_client_verify != SUCCESS) { return 403; }
+        
+        proxy_set_header     SSL_Client_Issuer $ssl_client_i_dn;
+        proxy_set_header     SSL_Client $ssl_client_s_dn;
+        proxy_set_header     SSL_Client_Verify $ssl_client_verify;
+
+        proxy_set_header X-Forwarded-For "mssl.lavrenov.io";
+        proxy_set_header X-Forwarded-Proto "https";
+
+        proxy_pass http://server:4000;  
+    }
+}
+
+# HTTPS OVER 443 USING 'MSSL.CRYSTALSPRING.DEV'
+server {
+    listen 443 ssl;
+    server_name  mssl.crystalspring.dev;
+    access_log  /logs/crystalspring.access.log  main;
+
+    # SSL
+    ssl_protocols TLSv1.2 TLSv1.3;
+    # Crystal SSL
+    ssl_certificate /etc/nginx/certs/crystal/star.crystalspring.dev.crt;
+    ssl_certificate_key /etc/nginx/certs/crystal/crystalspring.key;
+
+    # Client SSL
+    ssl_trusted_certificate  /etc/nginx/certs/sdk/cacert.cer;
+    ssl_client_certificate /etc/nginx/certs/sdk/cacert.cer; 
+    ssl_verify_client on;
+    ssl_verify_depth 2;
+
+    location / {
+        proxy_pass http://server:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For "mssl.crystalspring.dev";
+        proxy_set_header X-Forwarded-Proto "https";
+    }
+
+}

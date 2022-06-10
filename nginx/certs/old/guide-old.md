@@ -108,3 +108,24 @@ openssl x509 \
 * https://www.thesslstore.com/blog/how-to-become-a-certificate-authority/
 * https://www.thesslstore.com/blog/creating-your-own-certificate-authority-server/
 * https://www.davidpashley.com/articles/becoming-a-x-509-certificate-authority/
+
+
+
+
+
+if ($ssl_client_verify != SUCCESS) { 
+          # return 403; 
+          proxy_set_header X-Forwarded-For "server.mssl.example";
+          proxy_set_header X-Forwarded-Proto "https";
+
+          
+        } else {
+          proxy_set_header     SSL_Client_Issuer $ssl_client_i_dn;
+          proxy_set_header     SSL_Client $ssl_client_s_dn;
+          proxy_set_header     SSL_Client_Verify $ssl_client_verify;
+
+          proxy_set_header X-Forwarded-For "server.mssl.example";
+          proxy_set_header X-Forwarded-Proto "https";
+
+          proxy_pass http://server:4000/mssl;  
+        }
