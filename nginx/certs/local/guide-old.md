@@ -1,13 +1,4 @@
-# Certificates & Files
-.key is the private key. This is accessible the key owner and no one else.
 
-.csr is the certificate request. This is a request for a certificate authority to sign the key. (The key itself is not included.)
-
-.crt is the certificate produced by the certificate authority that verifies the authenticity of the key. (The key itself is not included.) This is given to other parties, e.g. HTTPS client.
-
-.pem is a text-based container using base-64 encoding. It could be any of the above files.
-
-.p12 is a PKCS12 file, which is a container format usually used to combine the private key and certificate.
 
 ## 1. Generate CA key
 ```sh
@@ -27,23 +18,10 @@ openssl req -new -x509 -days 365 -key ca.key -out ca.pem
 # COMMON NAME: lavrenov.io
 # EMAIL: ca@lavrenov.io
 ```
-To renew this certificate, just use the same command to create a new .crt file.
-To view what you input, use
-```sh
-openssl x509 -in ca.pem -noout -text
-```
+
 
 ## 3. Install the CA certificate (also called Root certificate) on your system.
-* On MacOS: 
-    1. open Keychain Access
-    2. File -> Import -> ca.pem
-    3. Double click the certificate
-    4. Expand "Trust", choose "always trust"<br><br>
 
-* On Windows10: (tbd)
-* On Linux: (tbd)
-* On iOS14: (tbd)
-* On Android: (tbd)
 
 ## 4. Create certificate request for your website
 Generate private key
@@ -127,3 +105,6 @@ openssl x509 \
 * https://serverfault.com/questions/761280/nginx-does-not-prompt-for-client-ssl-certificate
 * https://help.hcltechsw.com/safelinx/1.2/adminguide/creating_a_self-signed_certificate.html
 * https://www.ibm.com/docs/en/api-connect/5.0.x?topic=profiles-generating-pkcs12-file-certificate-authority
+* https://www.thesslstore.com/blog/how-to-become-a-certificate-authority/
+* https://www.thesslstore.com/blog/creating-your-own-certificate-authority-server/
+* https://www.davidpashley.com/articles/becoming-a-x-509-certificate-authority/
