@@ -2,14 +2,14 @@ const axios = require('axios');
 const https = require('https');
 const fs = require('fs');
 
-const hostNamesArray = ['localhost', 'mssl.lavrenov.io', 'mssl.crystalspring.dev']
+const hostNamesArray = ['server.mssl.example']
 
 const getRequestWithCertificate = async () => {
   try {
     const cert = fs.readFileSync("../nginx/certs/local/client.crt");
     const key = fs.readFileSync("../nginx/certs/local/client.key");
     // const hostName = "127.0.0.1";
-    const hostName = hostNamesArray[1];
+    const hostName = hostNamesArray[0];
     const httpsAgent = new https.Agent({
       cert,
       key,
